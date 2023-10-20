@@ -34,9 +34,16 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 	int *pdata = data;
 	bool over = false;
-	for (int i = 0; i < height; i++)
+	// TODO: matice je symetricka - vypocitat jen pulku - druhou dokopirovat
+	// TODO: presunout promenne/pole do kostruktoru
+	// TODO: udelat ze zReal a zImag pole a prehodit vnitrni smycku ven
+	//float zReal[height * width] = x_start;
+	//float zImag[height * width] = y_start;
+
+	// TODO: jsou prehozene smycky - otestovat funkcionalitu
+	for (int j = 0; j < width; j++)
 	{
-		for (int j = 0; j < width; j++)
+		for (int i = 0; i < height; i++)
 		{
 			float x = x_start + j * dx; // current real value
 			float y = y_start + i * dy; // current imaginary value
@@ -45,6 +52,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			float zImag = y;
 			over = false;
 			int value = 0;
+
 			for (int k = 0; k < limit; ++k) {
 				float r2 = zReal * zReal;
 				float i2 = zImag * zImag;
