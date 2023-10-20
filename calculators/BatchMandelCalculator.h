@@ -18,6 +18,7 @@ public:
 
 private:
     // @TODO add all internal parameters
+    int *data;
 };
 
 #endif
