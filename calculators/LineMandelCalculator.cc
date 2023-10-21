@@ -20,12 +20,27 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 {
 	// @TODO allocate & prefill memory
 	data = (int *)(malloc(height * width * sizeof(int)));
+	
+	x = (float *)(malloc(width * sizeof(float)));
+	zReal = (float *)(malloc(width * sizeof(float)));
+	
+	y = (float *)(malloc(height * sizeof(float)));
+	zImag = (float *)(malloc(height * sizeof(float)));
+
 }
 
 LineMandelCalculator::~LineMandelCalculator() {
 	// @TODO cleanup the memory
 	free(data);
+	free(x);
+	free(zReal);
+	free(y);
+	free(zImag);
 	data = NULL;
+	x = NULL;
+	zReal = NULL;
+	y = NULL;
+	zImag = NULL;
 }
 
 
@@ -33,43 +48,44 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
 	int *pdata = data;
-	bool over = false;
+	for (int i = 0; i < height * width; i++){
+		pdata[i] = limit;
+	}
+
 	// TODO: matice je symetricka - vypocitat jen pulku - druhou dokopirovat
 	// TODO: presunout promenne/pole do kostruktoru
-	// TODO: udelat ze zReal a zImag pole a prehodit vnitrni smycku ven
-	//float zReal[height * width] = x_start;
-	//float zImag[height * width] = y_start;
+	// TODO: prehodit vnitrni smycku ven
 
-	// TODO: jsou prehozene smycky - otestovat funkcionalitu
-	for (int j = 0; j < width; j++)
+	for (int i = 0; i < width; i++) {
+			x[i] = x_start + i * dx; // current real value
+	}
+
+	for (int i = 0; i < height; i++) {
+			y[i] = y_start + i * dy; // current imaginary value
+	}
+	
+
+	for (int i = 0; i < height; i++)
 	{
-		for (int i = 0; i < height; i++)
+		
+		for (int j = 0; j < width; j++)
 		{
-			float x = x_start + j * dx; // current real value
-			float y = y_start + i * dy; // current imaginary value
-
-			float zReal = x;
-			float zImag = y;
-			over = false;
-			int value = 0;
-
+			zReal[j] = x[j];
+			zImag[i] = y[i];
+			
 			for (int k = 0; k < limit; ++k) {
-				float r2 = zReal * zReal;
-				float i2 = zImag * zImag;
+				float r2 = zReal[j] * zReal[j];
+				float i2 = zImag[i] * zImag[i];
 
 				if (r2 + i2 > 4.0f){
-					value = k;
-					over = true;
+
+					pdata[i * width + j] = k;
 					break;
 				}
 
-				zImag = 2.0f * zReal * zImag + y;
-				zReal = r2 - i2 + x;
+				zImag[i] = 2.0f * zReal[j] * zImag[i] + y[i];
+				zReal[j] = r2 - i2 + x[j];
 			}
-			if (!over){
-				value = limit;
-			}
-			*(pdata++) = value;
 		}
 	}
 	return data;

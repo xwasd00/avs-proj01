@@ -3,7 +3,7 @@
 #SBATCH -p qcpu_exp
 #SBATCH -A DD-23-135
 #SBATCH -n 1 
-#SBATCH -t 0:25:00
+#SBATCH -t 0:20:00
 #SBATCH --output=%x.ID-%j.out
 #SBATCH --error=%x.ID-%j.err
 
@@ -19,20 +19,17 @@ CC=icc CXX=icpc cmake ..
 make
 
 
-for calc in "ref" "batch" "line"; do
+#for calc in "ref" "batch" "line"; do
+for calc in "line"; do
     rm -rf Advisor-$calc
     mkdir Advisor-$calc
 
-    # Basic survey
-    advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 4096
+    advixe-cl -collect roofline -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 4096
 
-
-    # Roof line
-    advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 4096
 done
 
 rm -rf compare.out *.npz *.png
-bash ../scripts/compare.sh > compare.out
+bash ../scripts/compare.sh 2>&1 > compare.out
 for file in *.npz
 do
     python3 ../scripts/visualise.py "$file" --save "${file%.*}.png"
