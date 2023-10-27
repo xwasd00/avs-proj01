@@ -3,7 +3,7 @@
 #SBATCH -p qcpu_exp
 #SBATCH -A DD-23-135
 #SBATCH -n 1 
-#SBATCH -t 0:20:00
+#SBATCH -t 0:05:00
 #SBATCH --output=%x.ID-%j.out
 #SBATCH --error=%x.ID-%j.err
 
@@ -20,11 +20,11 @@ make
 
 
 #for calc in "ref" "batch" "line"; do
-for calc in "line"; do
+for calc in "line" "ref"; do
     rm -rf Advisor-$calc
     mkdir Advisor-$calc
-
-    advixe-cl -collect roofline -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 4096
+    advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
+    advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
 
 done
 
