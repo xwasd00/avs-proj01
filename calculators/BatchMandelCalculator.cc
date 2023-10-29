@@ -33,17 +33,16 @@ int * BatchMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
 	bool over = false;
-	for (int i = 0; i < height; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
+	#pragma omp simd
+	for (int i = 0; i < height; i++) {
+		float y = y_start + i * dy; // current imaginary value
+		#pragma omp simd
+		for (int j = 0; j < width; j++) {
 			float x = x_start + j * dx; // current real value
-			float y = y_start + i * dy; // current imaginary value
-
-			float zReal = x;
-			float zImag = y;
 			over = false;
 			int value = 0;
+			float zReal = x;
+			float zImag = y;
 			for (int k = 0; k < limit; ++k) {
 				float r2 = zReal * zReal;
 				float i2 = zImag * zImag;

@@ -47,44 +47,44 @@ LineMandelCalculator::~LineMandelCalculator() {
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
-	for (int j = 0; j < width; j++) {
-		x[j] = x_start + j * dx; // current real value
+	bool over = false;
+	#pragma omp simd
+	for (int i = 0; i < width; ++i) {
+		x[i] = x_start + i * dx;
 	}
-
+	#pragma omp simd
 	for (int i = 0; i < height; i++) {
-		y[i] = y_start + i * dy; // current imaginary value
-	}
-	//#pragma omp simd
-	/*
-	for (int i = 0; i < height; i++) {
+		#pragma omp simd
 		for (int j = 0; j < width; j++) {
 			zReal[i * width + j] = x[j];
-			zImag[i * width + j] = y[i];
+			zImag[i * width + j] = y_start + i * dy;
 		}
 	}
-	*/
-	// TODO: matice je symetricka - vypocitat jen pulku - druhou dokopirovat
-	// #pragma omp simd
-	for (int i = 0; i < height; i++){
-		for (int k = 0; k < limit; ++k) {
-			unsigned int counter = 0;
-			#pragma omp simd reduction(+:counter)
-			for (int j = 0; j < width; j++) {
-				float r2 = zReal[i * width + j] * zReal[i * width + j];
-				float i2 = zImag[i * width + j] * zImag[i * width + j];
-				
+	#pragma omp simd
+	for (int i = 0; i < height; i++) {
+		float y = y_start + i * dy; // current imaginary value
+		#pragma omp simd
+		for (int j = 0; j < width; j++) {
+
+			float zReal = x[j];
+			float zImag = y;
+			over = false;
+			int value = 0;
+			for (int k = 0; k < limit; ++k) {
+				float r2 = zReal * zReal;
+				float i2 = zImag * zImag;
 				if (r2 + i2 > 4.0f){
-					counter += 1;
+					value = k;
+					over = true;
+					break;
 				}
-				else{
-					pdata[i * width + j] += 1;
-					zImag[i * width + j] = 2.0f * zReal[i * width + j] * zImag[i * width + j] + y[i];
-					zReal[i * width + j] = r2 - i2 + x[j];
-				}
+				zImag = 2.0f * zReal * zImag + y;
+				zReal = r2 - i2 + x[j];
 			}
-			if (counter == limit){
-				break;
+			if (!over) {
+				value = limit;
 			}
+			pdata[i * width + j] = value;
 		}
 	}
 	return data;
