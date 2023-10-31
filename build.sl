@@ -11,7 +11,7 @@ cd $SLURM_SUBMIT_DIR
 ml purge
 ml Advisor intel-compilers/2022.1.0 CMake/3.23.1-GCCcore-11.3.0 matplotlib
 
-[ -d build ] && rm -rf build
+#[ -d build ] && rm -rf build
 [ -d build ] || mkdir build
 cd build
 
@@ -23,8 +23,8 @@ make
 for calc in "line"; do
     rm -rf Advisor-$calc
     mkdir Advisor-$calc
-    advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
-    advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
+    #advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
+    #advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
     ./mandelbrot -c $calc -s 1024 cmp_$calc.npz
 done
 

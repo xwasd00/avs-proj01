@@ -19,72 +19,83 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 	BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator")
 {
 	// @TODO allocate & prefill memory
-	data = (int *)(calloc(height * width, sizeof(int)));
+	data = (int *) _mm_malloc(height * width * sizeof(int), 64);
 	
-	x = (float *)(calloc(width, sizeof(float)));
-	y = (float *)(calloc(height, sizeof(float)));
+	//data = (int *)(calloc(height * width, sizeof(int)));
+	
+	x = (float *) _mm_malloc(width * sizeof(float), 64);
+	//x = (float *)(calloc(width, sizeof(float)));
 
-	zReal = (float *)(calloc(width * height, sizeof(float)));
-	zImag = (float *)(calloc(width * height, sizeof(float)));
+	zReal = (float *) _mm_malloc(height * width * sizeof(float), 64);
+	//zReal = (float *)(calloc(height * width, sizeof(float)));
+	zImag = (float *) _mm_malloc(height * width * sizeof(float), 64);
+	//zImag = (float *)(calloc(height * width, sizeof(float)));
+	for (int i = 0; i < width; i++){
+		x[i] = 0;
+	}
+	for (int i = 0; i < height * width; i++){
+		data[i] = 0;
+		zReal[i] = 0;
+		zImag[i] = 0;
+	}
 
 }
 
 LineMandelCalculator::~LineMandelCalculator() {
 	// @TODO cleanup the memory
-	free(data);
-	free(x);
-	free(y);
-	free(zReal);
-	free(zImag);
+	_mm_free(data);
+	_mm_free(x);
+	_mm_free(zReal);
+	_mm_free(zImag);
+	//free(data);
+	//free(x);
+	//free(zReal);
+	//free(zImag);
 	data = NULL;
 	x = NULL;
-	y = NULL;
 	zReal = NULL;
 	zImag = NULL;
 }
 
-
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
-	bool over = false;
-	#pragma omp simd
+	float *px = x;
+	int half_height = height/2;
+	
+	int half = height / 2;
+	int size = height * width;
+	#pragma omp simd aligned(px:64)
 	for (int i = 0; i < width; ++i) {
-		x[i] = x_start + i * dx;
+		px[i] = x_start + i * dx;
 	}
 	#pragma omp simd
-	for (int i = 0; i < height; i++) {
-		#pragma omp simd
-		for (int j = 0; j < width; j++) {
-			zReal[i * width + j] = x[j];
-			zImag[i * width + j] = y_start + i * dy;
-		}
-	}
-	#pragma omp simd
-	for (int i = 0; i < height; i++) {
-		float y = y_start + i * dy; // current imaginary value
-		#pragma omp simd
-		for (int j = 0; j < width; j++) {
+	for (int i = 0; i < half; i++) {
+		float y = y_start + i * dy;
+		float *pzReal = zReal;
+		float *pzImag = zImag;
+		for (int k = 0; k < limit; ++k) {
+			bool over = false;
+			// TODO: oddelat nepotrebne pragmy
+			#pragma omp simd reduction(&:over) aligned(pdata:64,px:64,pzReal:64,pzImag:64) linear(pdata:1,i:1) lastprivate(data) safelen(64) simdlen(64)
+			for (int j = 0; j < width; j++) {
+				pzReal[j] = k ? pzReal[j] : px[j];
+				pzImag[j] = k ? pzImag[j] : y;
 
-			float zReal = x[j];
-			float zImag = y;
-			over = false;
-			int value = 0;
-			for (int k = 0; k < limit; ++k) {
-				float r2 = zReal * zReal;
-				float i2 = zImag * zImag;
-				if (r2 + i2 > 4.0f){
-					value = k;
-					over = true;
-					break;
+				float r2 = pzReal[j] * pzReal[j];
+				float i2 = pzImag[j] * pzImag[j];
+
+				over &= (r2 + i2 > 4.0f);
+				if (r2 + i2 <= 4.0f){
+					pdata[i * width + j] += 1;
+					pdata[(height - i - 1) * width + j] += 1;
+					float tmp = r2 - i2 + px[j];
+					pzImag[j] = 2.0f * pzReal[j] * pzImag[j] + y;
+					pzReal[j] = tmp;
 				}
-				zImag = 2.0f * zReal * zImag + y;
-				zReal = r2 - i2 + x[j];
 			}
-			if (!over) {
-				value = limit;
-			}
-			pdata[i * width + j] = value;
+			if (over)
+				break;
 		}
 	}
 	return data;

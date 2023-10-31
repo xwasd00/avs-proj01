@@ -30,3 +30,9 @@ for calc in "ref" "batch" "line"; do
     # Roof line
     advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 4096
 done
+
+bash ../scripts/compare.sh 2>&1 > compare.out
+for file in *.npz
+do
+    python3 ../scripts/visualise.py "$file" --save "${file%.*}.png"
+done
