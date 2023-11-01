@@ -7,6 +7,8 @@
 #ifndef BATCHMANDELCALCULATOR_H
 #define BATCHMANDELCALCULATOR_H
 
+#define VEC_ALIGN 64
+
 #include <BaseMandelCalculator.h>
 
 class BatchMandelCalculator : public BaseMandelCalculator
@@ -19,6 +21,11 @@ public:
 private:
     // @TODO add all internal parameters
     int *data;
+    float *x;
+    float *zReal;
+    float *zImag;
+    const int tile_size = 256;
+    const int ALIGN = 64;
 };
 
 #endif

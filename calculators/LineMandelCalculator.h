@@ -18,7 +18,7 @@ private:
     // @TODO add all internal parameters
     int *data;
     float *x;
-    float *y;
+    //float *y;
     float *zReal;
     float *zImag;
 };

@@ -11,7 +11,7 @@ cd $SLURM_SUBMIT_DIR
 ml purge
 ml Advisor intel-compilers/2022.1.0 CMake/3.23.1-GCCcore-11.3.0 matplotlib
 
-#[ -d build ] && rm -rf build
+[ -d build ] && rm -rf build
 [ -d build ] || mkdir build
 cd build
 
