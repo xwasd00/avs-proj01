@@ -63,4 +63,4 @@ done
     done
  ) | tee ../datalog.csv
 
- python3 scripts/plot_evaluate.py ../datalog.csv --save ../eval.png
+ python3 ../scripts/plot_evaluate.py ../datalog.csv --save ../eval.png
