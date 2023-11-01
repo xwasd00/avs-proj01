@@ -8,7 +8,7 @@
 
 
 cd $SLURM_SUBMIT_DIR
-ml intel-compilers/2022.1.0 CMake/3.23.1-GCCcore-11.3.0 # pouze na Barbore
+ml intel-compilers/2022.1.0 CMake/3.23.1-GCCcore-11.3.0 matplotlib # pouze na Barbore
 
 [ -d build_evaluate ] && rm -rf build_evaluate
 [ -d build_evaluate ] || mkdir build_evaluate
@@ -62,3 +62,5 @@ done
         done
     done
  ) | tee ../datalog.csv
+
+ python3 scripts/plot_evaluate.py ../datalog.csv --save ../eval.png

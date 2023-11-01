@@ -64,37 +64,38 @@ int * BatchMandelCalculator::calculateMandelbrot () {
 		const float y = y_start + i * dy;
 		float *pzReal = zReal;
 		float *pzImag = zImag;
+		const int offset = i * width;
+		const int offsetR = (height - i - 1) * width;
 
-		for (int k = 0; k < limit; ++k) {
-			bool over = false;
-			
-			#pragma omp simd  
-			for (int tj = 0; tj < tile; ++tj){
+		
+		#pragma omp simd  
+		for (int tj = 0; tj < tile; ++tj){
+
+			for (int k = 0; k < limit; ++k) {
+				bool over = false;
 				
 				#pragma omp simd reduction(&:over) aligned(pdata:64,px:64,pzReal:64,pzImag:64) simdlen(64)
 				for (int j = 0; j < tile_size; ++j) {
 					const int jG = tj * tile_size + j;
-					const int offset = i * width;
-					const int offsetR = (height - i - 1) * width;
 					
-					pzReal[jG] = k ? pzReal[jG] : px[jG];
-					pzImag[jG] = k ? pzImag[jG] : y;
+					pzReal[j] = k ? pzReal[j] : px[jG];
+					pzImag[j] = k ? pzImag[j] : y;
 
-					float r2 = pzReal[jG] * pzReal[jG];
-					float i2 = pzImag[jG] * pzImag[jG];
+					float r2 = pzReal[j] * pzReal[j];
+					float i2 = pzImag[j] * pzImag[j];
 
 					over &= (r2 + i2 > 4.0f);
 					if (r2 + i2 <= 4.0f){
 						pdata[offset + jG] += 1;
 						pdata[offsetR + jG] += 1;
 						float tmp = r2 - i2 + px[jG];
-						pzImag[jG] = 2.0f * pzReal[jG] * pzImag[jG] + y;
-						pzReal[jG] = tmp;
+						pzImag[j] = 2.0f * pzReal[j] * pzImag[j] + y;
+						pzReal[j] = tmp;
 					}
 				}
+				if (over)
+					break;
 			}
-			if (over)
-				break;
 		}	
 	}
 	return data;
