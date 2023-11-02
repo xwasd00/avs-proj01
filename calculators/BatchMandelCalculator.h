@@ -20,8 +20,11 @@ public:
 
 private:
     // @TODO add all internal parameters
-    int *data;
-    float *x;
+    int ***d;
+    int **data;
+    int *data_field;
+    float **x;
+    float *x_field;
     float *zReal;
     float *zImag;
     const int tile_size = 256;
