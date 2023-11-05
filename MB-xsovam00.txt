@@ -3,20 +3,23 @@
 
 1. Byla "Line" vektorizace časově efektivní? Proč?
 ==============================================================================
-
+Ano, díky přehození smyček.
 
 2. Jaká byla dosažena výkonnost v Intel Advisoru pro jednotlivé implementace 
 (v GFLOPS)?
 ==============================================================================
-
+Line: 20.80  Batch: 26.12
 
 3. Jaká část kódu byla vektorizována v "Line" implementaci? Vyčteme tuto 
 informaci i u batch kalkulátoru?
 ==============================================================================
-
+Tuto informaci lze vyčíst v *.optrt souborech při zvýšení parametru -qopt-report=5 u překladu, konkrétně v:
+ - 'avs-proj01/build/CMakeFiles/mandelbrot.dir/calculators/LineMandelCalculator.cc.optrpt'
+ - 'avs-proj01/build/CMakeFiles/mandelbrot.dir/calculators/BatchMandelCalculator.cc.optrpt'
+lze vyčíst, že byla vektorizována vnitřní smyčka.
 
 4. Co vyčteme z Roofline modelu pro obě vektorizované implementace?
 ==============================================================================
-
+Můžeme vyčíst GFLOPS, zda-li je kód memory bound nebo compute bound.
 
 

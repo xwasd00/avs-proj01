@@ -20,16 +20,16 @@ make
 
 
 #for calc in "ref" "batch" "line"; do
-for calc in "line"; do
+for calc in "batch"; do
     rm -rf Advisor-$calc
     mkdir Advisor-$calc
-    #advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
-    #advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
-    ./mandelbrot -c $calc -s 1024 cmp_$calc.npz
+    advixe-cl -collect survey -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
+    advixe-cl -collect tripcounts -flop -project-dir Advisor-$calc  -- ./mandelbrot -c $calc -s 1024
+    #./mandelbrot -c $calc -s 1024 cmp_$calc.npz
 done
 
 #rm -rf compare.out *.npz *.png
-#bash ../scripts/compare.sh 2>&1 > compare.out
+bash ../scripts/compare.sh 2>&1 > compare.out
 for file in *.npz
 do
     python3 ../scripts/visualise.py "$file" --save "${file%.*}.png"
